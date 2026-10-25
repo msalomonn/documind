@@ -1,6 +1,6 @@
 # DocuMind implementation decomposition
 
-These are planned tasks, not completion claims. GitHub Issues will own live status.
+These are planned tasks, not completion claims. GitHub Issues own live status; see [issue index](../../docs/backlog.md#issue-index).
 
 | ID | Work | Depends on | Acceptance/evidence |
 | --- | --- | --- | --- |
