@@ -1,0 +1,15 @@
+.DS_Store
+.env
+.env.*
+!.env.example
+node_modules/
+dist/
+coverage/
+.venv/
+__pycache__/
+*.pyc
+.workflow-local/
+.codex/auth.json
+.codex/sessions/
+.codex/log/
+.codex/history.jsonl

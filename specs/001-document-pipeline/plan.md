@@ -1,0 +1,36 @@
+# DM-01 implementation plan — proposed
+
+## Shape
+
+React web app, Go HTTP API and Go worker; separate processes in one repository. PostgreSQL stores document metadata, jobs and results; S3-compatible storage holds private original objects. Start with a PostgreSQL-backed queue to avoid another operational dependency. Provider access lives behind an extractor interface, with a deterministic fake adapter for tests.
+
+Proposed layout: `web/`, `cmd/api`, `cmd/worker`, `internal/{auth,documents,jobs,extraction}`, `db/migrations`, `tests/fixtures`. Pin versions during DM-00. No application implementation exists yet.
+
+## Persistence and job contract
+
+Document: ID, owner, random object key, content hash, detected type, size, timestamps. Job: document, generation, state, attempts, next run, lease expiry, claim token and safe error code. Result: unique job generation, schema version, extraction JSON and provider/model metadata without secrets. Enforce at most one active generation per document with a database constraint.
+
+API streams and validates a bounded upload to private storage, then commits document+job metadata in a transaction. A failed database commit can leave an orphan object: track temporary keys and reconcile/delete unreferenced objects after a safe grace period. Do not enqueue when storage fails.
+
+Workers atomically claim eligible rows with a short transaction using row locks and SKIP LOCKED, then commit before doing slow parsing or provider calls. They renew leases during work. Completion/retry updates compare claim token and lease ownership. An expired claim can be reclaimed; stale workers cannot finalize. State transitions and result insertion occur in one transaction. This is at-least-once processing, not exactly-once provider billing.
+
+Default: 3 total automatic attempts; backoff 5s then 30s with jitter, plus bounded Retry-After handling; per-attempt deadlines and maximum lease duration defined during implementation. Permanent invalid documents fail immediately. Manual retry creates a new generation only when no active generation exists.
+
+## API draft
+
+- `POST /api/documents` with multipart file and `Idempotency-Key`; returns 202 after persistence.
+- `GET /api/documents` and `GET /api/documents/:id` expose owner-scoped status/results.
+- `GET /api/documents/:id/download` authorizes before a short-lived signed URL or streamed response.
+- `POST /api/documents/:id/retry` returns 202 or 409 for an active generation.
+
+## Extraction contract
+
+Interface accepts bounded extracted text and deadline, returns schema-validated `{schemaVersion,title,summary,keyFacts:[{text,sourceExcerpt}]}` or a typed failure. Verify supporting excerpts against source text. Treat documents as data, delimit them from provider instructions and allow no tools. Provide clear unknown/error states. A schema check is necessary but does not prove factual accuracy; review synthetic evaluation cases and record failures.
+
+## Verification
+
+Real database/storage integration tests: duplicate keys, foreign-owner access, corrupt input, object/DB failure boundary, worker kill/restart, lease expiry and stale completion, provider 429/timeouts, malformed output and exhausted retries. Fake provider tests are deterministic. A separately authorized live-provider smoke uses synthetic content and recorded cost bounds. Browser scenario covers upload → progress → result and failure → retry.
+
+## Dependencies and release decisions
+
+DM-00 chooses identity integration, storage/parser libraries and provider contract. Deployment additionally needs hosting, retention/cleanup policy, quotas and cost cap. Local fixtures do not require real credentials. TenantFlow is not a runtime dependency.
