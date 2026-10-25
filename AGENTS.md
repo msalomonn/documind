@@ -1,7 +1,7 @@
 # Repository guidance
 
 Read README.md, .specify/memory/constitution.md, docs/governance.md and the relevant feature package before changes.
-The constitution and initial feature scopes are drafts pending Manuel's review. Prepare/review foundations; do not silently mark them approved or start feature implementation until that roadmap gate is satisfied.
+Manuel approved constitution v1 and the initial MVP scopes on 2026-10-25. Implementation within that scope is authorized; do not ask for the same approval again. Hosting, costs and public deployment remain separate decisions.
 
 Preserve current work. Inspect git status and branch before editing. Use feature branches and small PRs after bootstrap. Do not push application changes directly to main. Do not merge or deploy merely because tests pass.
 

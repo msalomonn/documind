@@ -1,6 +1,6 @@
 # ADR DM-0001: PostgreSQL-backed jobs first
 
-Status: proposed. Date: 2026-10-25.
+Status: accepted with the initial architecture approval. Date: 2026-10-25.
 Context: demonstrate queue semantics and recovery within a three-week portfolio budget.
 Options: managed queue/broker; Redis-backed queue; transactional PostgreSQL job table.
 Decision proposal: use a job table with atomic claims, leases, bounded retries and fenced completion. Keep the worker separate from the API and isolate the queue behind an interface.

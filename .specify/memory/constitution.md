@@ -1,6 +1,6 @@
 # Engineering Constitution v1
 
-Status: DRAFT — proposed for Manuel's review on 2026-10-25. Ratification is not implied by committing this file.
+Status: RATIFIED by Manuel on 2026-10-25. Approval source: explicit “si” in the Codex conversation after the constitution/MVP review request.
 Scope: portfolio-engineering, TenantFlow and DocuMind. Roadmap: 2026-10-26 through 2026-11-13.
 
 ## 1. Behavior before implementation
@@ -47,5 +47,5 @@ Target 4–6 hours per weekday across the entire portfolio: 60–90 hours total 
 
 ## Governance
 
-Version: 1.0.0-draft. Owner: Manuel (`msalomonn`). Ratified: pending.
+Version: 1.0.0. Owner: Manuel (`msalomonn`). Ratified: 2026-10-25.
 Change through a PR stating rationale, affected specs and migration needs. Applications carry a versioned snapshot in `.specify/memory/constitution.md`, with the source version recorded in `docs/governance.md`. Adopt updates deliberately; do not require another repo to exist on disk to use an app's constitution.

@@ -1,6 +1,6 @@
 # DM-01: Upload a document and track extraction
 
-Status: proposed; initial MVP approval pending. Product requirements, not implementation evidence.
+Status: MVP scope approved by Manuel on 2026-10-25. Requirements are not implementation evidence.
 
 ## User outcome
 

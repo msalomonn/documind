@@ -19,7 +19,7 @@ With Python 3.11 or newer, create an isolated environment outside the repository
 
 The Codex integration installed ten skills in `.agents/skills/`; `specify integration status` checks their manifest state. Runtime event handlers were disabled. No Caronte hooks, git/Linear bridge, autonomous workflow or automatic merge was installed.
 
-In a project session, use `$speckit-specify`, `$speckit-plan`, `$speckit-tasks`, `$speckit-analyze` and `$speckit-converge` as needed. Initial constitution/spec approval remains pending. Installation checks do not prove the desktop client has discovered these skills or that a feature has been implemented.
+In a project session, use `$speckit-specify`, `$speckit-plan`, `$speckit-tasks`, `$speckit-analyze` and `$speckit-converge` as needed. Initial constitution and MVP scope were approved on 2026-10-25; see governance.md. Installation checks do not prove the desktop client has discovered these skills or that a feature has been implemented.
 
 Spec Kit selects the active feature using `.specify/feature.json`, which upstream intentionally ignores in Git. On a fresh clone, set the feature explicitly before running scripts:
 
