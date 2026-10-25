@@ -2,8 +2,8 @@
 
 A document-processing application demonstrating durable jobs, worker recovery and schema-validated AI extraction.
 
-**Status:** specification and architecture draft. No application code, deployment or working demo yet.
-Requested stack: **React + Go**. Proposed supporting infrastructure is described in the plan and remains subject to review.
+**Status:** MVP scope and initial architecture approved on October 25, 2026; implementation pending. No application code, deployment or working demo yet.
+Requested stack: **React + Go**. The approved initial supporting infrastructure is described in the plan. Provider, paid hosting and deployment decisions remain open.
 
 ## Start here
 
