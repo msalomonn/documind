@@ -1,10 +1,10 @@
-# DM-01 implementation plan — proposed
+# DM-01 implementation plan
 
 ## Shape
 
 React web app, Go HTTP API and Go worker; separate processes in one repository. PostgreSQL stores document metadata, jobs and results; S3-compatible storage holds private original objects. Start with a PostgreSQL-backed queue to avoid another operational dependency. Provider access lives behind an extractor interface, with a deterministic fake adapter for tests.
 
-Proposed layout: `web/`, `cmd/api`, `cmd/worker`, `internal/{auth,documents,jobs,extraction}`, `db/migrations`, `tests/fixtures`. Pin versions during DM-00. No application implementation exists yet.
+Proposed layout: `web/`, `cmd/api`, `cmd/worker`, `internal/{auth,documents,jobs,extraction}`, `db/migrations`, `tests/fixtures`. Pin versions during DM-00. DM-00 is the bounded bootstrap delivery described in [bootstrap contract](contracts/bootstrap.md); application processing remains in later tasks.
 
 ## Persistence and job contract
 
@@ -34,3 +34,7 @@ Real database/storage integration tests: duplicate keys, foreign-owner access, c
 ## Dependencies and release decisions
 
 DM-00 chooses identity integration, storage/parser libraries and provider contract. Deployment additionally needs hosting, retention/cleanup policy, quotas and cost cap. Local fixtures do not require real credentials. TenantFlow is not a runtime dependency.
+
+## DM-00 execution
+
+Implement T001/T002 against DM-B01–B06: contracts/ADR first, failing API readiness tests, then Go API/idle worker, private local services, migration tool, React status UI and CI. Real S3/database and browser checks must pass before reporting bootstrap ready. T003–T012 remain separate.

@@ -15,10 +15,10 @@ DM-04 can proceed against agreed response fixtures while worker implementation p
 
 ## Executable task checklist
 
-All unchecked. These steps refine the backlog; issue state remains authoritative. Target source paths are proposed and will be created during bootstrap.
+T001/T002 are the active DM-00 delivery, validated against [DM-B01–B06](contracts/bootstrap.md). Issue state remains authoritative; later tasks are not included in bootstrap.
 
-- [ ] T001 Record identity, storage/parser and extractor contracts in docs/adr/0002-integrations.md; pin versions after initial approval. [DM-00]
-- [ ] T002 Scaffold web, cmd/api, cmd/worker and local database/object-store setup with migrations and reproducible README commands. Depends T001. [DM-00]
+- [x] T001 Record identity, storage/parser and extractor contracts in docs/adr/0002-integrations.md; pin versions after initial approval. [DM-00]
+- [x] T002 Scaffold web, cmd/api, cmd/worker and local database/object-store setup with migrations and reproducible README commands. Depends T001. [DM-00]
 - [ ] T003 Define document/job/result schema, idempotency and active-generation constraints in db/migrations. Depends T002. [DM-A03,A06]
 - [ ] T004 Implement owner-scoped bounded upload and storage-to-DB failure handling in internal/documents; expose registration and lookup routes. Depends T003. [DM-A01–A03]
 - [ ] T005 Add real DB/storage upload tests in tests/integration for foreign owners, duplicate keys and storage/commit failures. Depends T004. [DM-A01–A03]
