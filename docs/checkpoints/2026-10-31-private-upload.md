@@ -11,3 +11,7 @@ Self-review covered owner predicates, session lifecycle/origin enforcement, body
 Local verification: `npm run check`, `go vet ./...`, real dependency checks, synthetic failure cases, eight Chromium scenarios across desktop/mobile. See docs/verification.md for precise limits and mapping. No live AI calls, PDF parser or worker claims have been executed. Browser fixtures remain synthetic records in local volumes; integration fixtures are removed. Existing credentials and volumes were preserved.
 
 Next: integrate prerequisite PR #8 and this delivery through review; DM-02 implements leased claims, crash recovery, bounded retry and stale-worker fencing. Do not imply queued jobs already process.
+
+## Review refinement: standalone authentication entry
+
+Manuel requested a full registration/login entry screen followed by the authenticated application. Updated the contract with UX-A01–UX-A04 before implementation, separated verification/auth/application rendering, moved service health behind the UI session gate and removed the marketing hero from the document workspace. The server still enforces all authorization. TypeScript, production builds and ten desktop/mobile browser scenarios passed; new screenshots show login, registration and the document application separately. Existing valid sessions enter the application after verification; logout/401 returns to login. This remains part of PR #9.

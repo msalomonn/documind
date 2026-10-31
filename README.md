@@ -28,7 +28,7 @@ npm run api
 npm run dev
 ```
 
-Open **http://127.0.0.1:4320** and create your own local account (email and a password of at least 12 characters). There are no seeded user credentials. Upload a `.txt` file, up to 10 MiB and 200,000 characters. Its status stays **Queued** until worker implementation. Download returns the private original; PDF uploads are explicitly rejected until DM-03. The screen also checks PostgreSQL and private storage. If unavailable, start services/API and use **Check again**. The frontend is a development server; production serving belongs to deployment work.
+Open **http://127.0.0.1:4320** to see the standalone sign-in screen. Choose **New here? Create an account** to register with an email and a password of at least 12 characters. After authentication, the entry screen is replaced by the document application. Reload restores an existing valid session; sign-out returns to the login screen. There are no seeded user credentials. Upload a `.txt` file, up to 10 MiB and 200,000 characters. Its status stays **Queued** until worker implementation. Download returns the private original; PDF uploads are explicitly rejected until DM-03. The screen also checks PostgreSQL and private storage. If unavailable, start services/API and use **Check again**. The frontend is a development server; production serving belongs to deployment work.
 
 The worker scaffold can validate its dependencies with `npm run worker:check`. `npm run worker` starts an explicitly idle process and shuts down on SIGINT/SIGTERM. It does not claim or process jobs yet.
 
@@ -68,7 +68,7 @@ npx playwright install chromium
 npm run check
 ```
 
-Stop the local API and Vite processes first: browser tests own ports 4320/4321. Checks run TypeScript, production web/Go builds, Go tests with the race detector, real PostgreSQL/S3 integration, the worker dependency check and eight desktop/mobile browser scenarios. Integration tests use synthetic objects and remove their document/account fixtures. Browser scenarios create synthetic `@example.test` accounts and documents in the local database; they are intentionally not user data and are not a demo login. No real documents are needed. The health error test injects a 503 response. The lost-acknowledgement scenario commits a real upload, replaces its response with 503 and then retries the same key. These are response fault injections, not real network outages.
+Stop the local API and Vite processes first: browser tests own ports 4320/4321. Checks run TypeScript, production web/Go builds, Go tests with the race detector, real PostgreSQL/S3 integration, the worker dependency check and ten desktop/mobile browser scenarios. Integration tests use synthetic objects and remove their document/account fixtures. Browser scenarios create synthetic `@example.test` accounts and documents in the local database; they are intentionally not user data and are not a demo login. No real documents are needed. The health error test injects a 503 response. The lost-acknowledgement scenario commits a real upload, replaces its response with 503 and then retries the same key. These are response fault injections, not real network outages.
 
 [Verification and limits](docs/verification.md) · [DM-01 checkpoint](docs/checkpoints/2026-10-31-private-upload.md) · [Bootstrap checkpoint](docs/checkpoints/2026-10-30-bootstrap.md)
 

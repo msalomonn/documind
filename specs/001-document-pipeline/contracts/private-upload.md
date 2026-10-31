@@ -23,3 +23,7 @@ Schema includes one active job generation per document, composite result/job ide
 ## Required evidence
 
 Real PostgreSQL/S3 tests: registration/login/logout/expired sessions, origin rejection, unauthenticated/foreign access, input bounds, concurrent replay and conflict, owner-scoped keys, object failure, real deferred database commit failure, orphan grace/cleanup and persisted queue after handler restart. Desktop/mobile browser tests: registration, upload, refresh, original download, logout/login, invalid upload, visible error and recovery. Tests use synthetic data. Review is explicitly self-review; no independent approval is implied.
+
+## Authentication entry screen refinement — 2026-10-31
+
+Requested by Manuel during DM-01 review. UX-A01: while session verification is pending, render only a neutral loading screen; do not mount the document workspace or service health panel. UX-A02: signed-out users enter a standalone login screen with a registration alternative; neither documents nor infrastructure panels appear there. UX-A03: successful login/registration replaces the entire entry screen with the document application; a valid session survives reload without a login flash. UX-A04: logout or a protected API 401 replaces the application with the login screen and clears selected files/documents. Verify on desktop/mobile, including delayed session checks and invalid credentials. Server authorization remains unchanged.
