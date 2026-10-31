@@ -3,11 +3,14 @@ package main
 import (
 	"context"
 	"errors"
+	"github.com/msalomonn/documind/internal/auth"
 	"github.com/msalomonn/documind/internal/config"
+	"github.com/msalomonn/documind/internal/documents"
 	"github.com/msalomonn/documind/internal/httpapi"
 	"github.com/msalomonn/documind/internal/platform"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"os/signal"
 	"syscall"
@@ -32,7 +35,16 @@ func run() error {
 		return err
 	}
 	defer clients.DB.Close()
-	server := &http.Server{Addr: c.Address, Handler: httpapi.New(clients.DB.Ping, clients.StorageReady), ReadHeaderTimeout: 3 * time.Second, ReadTimeout: 5 * time.Second, WriteTimeout: 5 * time.Second, IdleTimeout: 30 * time.Second}
+	origin := os.Getenv("APP_ORIGIN")
+	if origin == "" {
+		origin = "http://127.0.0.1:4320"
+	}
+	parsed, e := url.Parse(origin)
+	if e != nil || parsed.Host == "" || parsed.Path != "" || parsed.RawQuery != "" || parsed.Fragment != "" || parsed.User != nil || (parsed.Scheme != "https" && (parsed.Scheme != "http" || (parsed.Hostname() != "127.0.0.1" && parsed.Hostname() != "localhost"))) {
+		return errors.New("invalid APP_ORIGIN")
+	}
+	handler := httpapi.NewApplication(auth.New(clients.DB), &documents.Service{DB: clients.DB, Objects: documents.S3{Client: clients.S3, Bucket: clients.Bucket}}, origin, httpapi.New(clients.DB.Ping, clients.StorageReady))
+	server := &http.Server{Addr: c.Address, Handler: handler, ReadHeaderTimeout: 3 * time.Second, ReadTimeout: 35 * time.Second, WriteTimeout: 40 * time.Second, IdleTimeout: 30 * time.Second}
 	done := make(chan error, 1)
 	go func() { done <- server.ListenAndServe() }()
 	log.Print("DocuMind API started; document processing is not implemented")

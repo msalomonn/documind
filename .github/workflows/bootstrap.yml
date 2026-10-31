@@ -1,4 +1,4 @@
-name: Bootstrap checks
+name: Application checks
 on:
   pull_request:
   push:

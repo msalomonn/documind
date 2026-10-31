@@ -15,13 +15,13 @@ DM-04 can proceed against agreed response fixtures while worker implementation p
 
 ## Executable task checklist
 
-T001/T002 are the active DM-00 delivery, validated against [DM-B01–B06](contracts/bootstrap.md). Issue state remains authoritative; later tasks are not included in bootstrap.
+T001/T002 are the DM-00 delivery, validated against [DM-B01–B06](contracts/bootstrap.md). Issue state remains authoritative. T003–T005 are the bounded DM-01 delivery in [private upload contract](contracts/private-upload.md); PDF validation stays in T008. Minimum upload UI is delivered here, but T010 stays open for progress/results/retry integration.
 
 - [x] T001 Record identity, storage/parser and extractor contracts in docs/adr/0002-integrations.md; pin versions after initial approval. [DM-00]
 - [x] T002 Scaffold web, cmd/api, cmd/worker and local database/object-store setup with migrations and reproducible README commands. Depends T001. [DM-00]
-- [ ] T003 Define document/job/result schema, idempotency and active-generation constraints in db/migrations. Depends T002. [DM-A03,A06]
-- [ ] T004 Implement owner-scoped bounded upload and storage-to-DB failure handling in internal/documents; expose registration and lookup routes. Depends T003. [DM-A01–A03]
-- [ ] T005 Add real DB/storage upload tests in tests/integration for foreign owners, duplicate keys and storage/commit failures. Depends T004. [DM-A01–A03]
+- [x] T003 Define document/job/result schema, idempotency and active-generation constraints in db/migrations. Depends T002. [DM-A03,A06]
+- [x] T004 Implement owner-scoped bounded upload and storage-to-DB failure handling in internal/documents; expose registration and lookup routes. Depends T003. [DM-A01–A03]
+- [x] T005 Add real DB/storage upload tests in tests/integration for foreign owners, duplicate keys and storage/commit failures. Depends T004. [DM-A01–A03]
 - [ ] T006 Implement job claims, leases, retry scheduling and fenced completion in internal/jobs and cmd/worker. Depends T003. [DM-A04–A06]
 - [ ] T007 Add concurrent-claim, worker-kill, lease-expiry and stale-result tests in tests/integration. Depends T006. [DM-A04–A06]
 - [ ] T008 Implement bounded PDF/text parsing and deterministic fake extractor in internal/extraction with invalid/malicious fixture tests. Depends T001,T006. [DM-A02,A06,A07,A09,A10]
