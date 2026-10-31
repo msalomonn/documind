@@ -18,7 +18,7 @@ export function Workspace(){
  async function api(path:string,init?:RequestInit){
   const response=await fetch(path,{...init,signal:AbortSignal.timeout(45000)});
   const data=await response.json();
-  if(!response.ok){if(response.status===401&&path!=='/api/auth/login'){setUser(null);setDocs([]);setListReady(false)};throw new Error(messages[data.error]??'Something went wrong. Check your local services and try again.');}
+  if(!response.ok){if(response.status===401&&path!=='/api/auth/login'){setUser(null);setDocs([]);setListReady(false);setFile(null);key.current='';setNotice('')};throw new Error(messages[data.error]??'Something went wrong. Check your local services and try again.');}
   return data;
  }
  useEffect(()=>{let active=true;void fetch('/api/me',{signal:AbortSignal.timeout(8000)}).then(async r=>{

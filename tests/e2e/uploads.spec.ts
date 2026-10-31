@@ -18,7 +18,14 @@ test('private upload persists after refresh and downloads exact original; logout
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  await mkdir('docs/screenshots',{recursive:true});await page.screenshot({path:`docs/screenshots/upload-queued-${info.project.name}.png`,fullPage:true});
  await page.getByRole('button',{name:'Sign out',exact:true}).click();await expect(page.getByRole('heading',{name:'Welcome back'})).toBeVisible();await expect(page.getByRole('strong').filter({hasText:'project-brief.txt'})).toHaveCount(0);
- await page.getByLabel('Email',{exact:true}).fill(email);await page.getByLabel('Password',{exact:true}).fill('Synthetic-password-123');await page.getByRole('button',{name:'Sign in',exact:true}).click();await expect(page.getByRole('strong').filter({hasText:'project-brief.txt'})).toBeVisible();expect(errors).toEqual([]);
+ await page.getByLabel('Email',{exact:true}).fill(email);await page.getByLabel('Password',{exact:true}).fill('Synthetic-password-123');await page.getByRole('button',{name:'Sign in',exact:true}).click();await expect(page.getByRole('strong').filter({hasText:'project-brief.txt'})).toBeVisible();
+ // A rejected session must also discard a pending file before another sign-in.
+ await page.getByLabel('Choose document').setInputFiles({name:'pending.txt',mimeType:'text/plain',buffer:Buffer.from('Synthetic unsent file')});
+ await page.route('**/api/documents',route=>route.fulfill({status:401,contentType:'application/json',body:JSON.stringify({error:'authentication_required'})}));
+ await page.getByRole('button',{name:'Refresh documents'}).click();await expect(page.getByRole('heading',{name:'Welcome back'})).toBeVisible();await page.unroute('**/api/documents');
+ await page.getByLabel('Password',{exact:true}).fill('Synthetic-password-123');await page.getByRole('button',{name:'Sign in',exact:true}).click();
+ await expect(page.getByRole('strong').filter({hasText:'project-brief.txt'})).toBeVisible();await expect(page.getByRole('button',{name:'Upload privately'})).toBeDisabled();await expect(page.getByLabel('Choose document')).toHaveValue('');
+ expect(errors).toEqual([]);
 });
 test('invalid input and lost acknowledgement recover without duplicate documents',async({page},info)=>{
  await register(page);

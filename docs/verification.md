@@ -9,7 +9,7 @@ Date: 2026-10-31, America/Argentina/Buenos_Aires. Source: the commit containing 
 | DM-A03 | Real DB/S3: eight concurrent service calls produce one document/job; byte conflict 409; same key scoped independently per owner; storage confirmation fault and real deferred COMMIT failure leave no document/job; durable intents survive and grace-period cleanup preserves fresh and committed originals. |
 | Future schema invariants | DB rejects a second active generation and a result without its job. These checks do not prove worker fencing or extraction validation. |
 | Durable queue subset of A04 | Handler recreation reads the persisted queued document. This is not a worker kill/recovery test. |
-| Initial UI (partial A08) | Eight desktop/mobile browser scenarios: readiness, injected outage/recovery, registration/upload/refresh/download/logout/login, invalid PDF and lost-acknowledgement retry without duplication. No processing/results UI claimed. |
+| Initial UI (partial A08) | Eight desktop/mobile browser scenarios: readiness, injected outage/recovery, registration/upload/refresh/download/logout/login, invalid PDF, session-rejection selection reset and lost-acknowledgement retry without duplication. No processing/results UI claimed. |
 
 Commands: `npm run check` (typecheck, web/Go builds, race tests, real integration, worker dependency check, eight E2E scenarios); `go vet ./...`. All data is synthetic. S3 failure injection happens after a real write; database failure is a deferred PostgreSQL constraint trigger at COMMIT, not a mocked transaction. Browser acknowledgement loss is simulated by replacing a real 202 response with 503, then retrying the original idempotency key. This does not simulate a physical network outage.
 
