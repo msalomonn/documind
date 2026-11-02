@@ -1,0 +1,14 @@
+{
+ "name":"documind","version":"0.1.0","private":true,"type":"module",
+ "engines":{"node":">=24.22.1 <25"},
+ "scripts":{
+  "setup":"node scripts/setup.mjs","services:up":"docker compose up -d --wait db store","services:stop":"docker compose stop",
+  "db:migrate":"node scripts/run.mjs go run ./cmd/bootstrap",
+  "api":"node scripts/run.mjs go run ./cmd/api","worker":"node scripts/run.mjs go run ./cmd/worker","worker:check":"node scripts/run.mjs go run ./cmd/worker --check",
+  "dev":"vite --config web/vite.config.ts","typecheck":"tsc --noEmit","build":"vite build --config web/vite.config.ts && go build ./...",
+  "test":"go test -race ./...","test:integration":"node scripts/run.mjs --integration go test -race -count=1 ./internal/platform",
+  "test:e2e":"playwright test","check":"npm run typecheck && npm run build && npm test && npm run test:integration && npm run worker:check && npm run test:e2e"
+ },
+ "dependencies":{"react":"19.3.1","react-dom":"19.3.1"},
+ "devDependencies":{"@playwright/test":"1.64.1","@vitejs/plugin-react":"6.1.2","typescript":"7.0.2","vite":"8.3.5","@types/react":"19.3.0","@types/react-dom":"19.3.0","@types/node":"26.6.5"}
+}

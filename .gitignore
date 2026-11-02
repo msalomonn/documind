@@ -13,3 +13,8 @@ __pycache__/
 .codex/sessions/
 .codex/log/
 .codex/history.jsonl
+.local/
+*.log
+bin/
+test-results/
+playwright-report/

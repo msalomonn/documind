@@ -1,0 +1,18 @@
+# DM-00 verification
+
+Date: 2026-10-30, America/Argentina/Buenos_Aires. Source: the commit containing this record and its PR head. Environment: macOS arm64; Go 1.27.3, Node 24.22.1, PostgreSQL 18, SeaweedFS 4.51, Playwright 1.64.1 Chromium. CI uses Linux and runs the same `npm run check`.
+
+| Acceptance | Evidence |
+| --- | --- |
+| DM-B01 | `internal/httpapi/server_test.go`: healthy/unavailable probes, safe status bodies, no-store and deadlines. Live readiness reads a synthetic S3 object, not just bucket metadata. |
+| DM-B02 | Setup rerun preserves the `.env` hash; real migrations run twice; integration inspects restricted runtime-role privileges. Images and dependencies pinned. |
+| DM-B03 | `internal/platform/integration_test.go`: authenticated put/get/delete, anonymous and wrong-key read rejection, denial of unrelated bucket creation. Existing schema/bucket survived a service restart without reinitialization after waiting for service health. |
+| DM-B04 | Four desktop/mobile Playwright scenarios: real ready state, no misleading upload controls, no horizontal overflow, injected 503 state and retry against real API. |
+| DM-B05 | Forged identity headers do not bypass 401; worker dependency probe exits successfully and normal worker is explicitly idle. |
+| DM-B06 | Go race tests, TypeScript, web/Go build and worker probe; workflow added for PR/main. Remote CI result is tracked on the PR, not inferred from local success. |
+
+The first API test failed before its handler existed. Bootstrap initially encountered a Docker Desktop host-mount restriction; configuration now originates inside containers, with persisted Docker volumes. A first immediate post-restart write timed out during storage leader/volume recovery. Compose now waits for volume registration, allows graceful shutdown, and readiness verifies real object reads. The integration suite then passed after recovery without recreating the bucket/schema.
+
+Screenshots: [ready desktop](screenshots/bootstrap-desktop.png), [ready mobile](screenshots/bootstrap-mobile.png), [injected unavailable desktop](screenshots/bootstrap-unavailable-desktop.png), [injected unavailable mobile](screenshots/bootstrap-unavailable-mobile.png). They show local scaffold states, not completed document processing.
+
+Limits: no implemented user sessions, document uploads, parser, queue claims/leases, AI provider, deployed smoke or load test. Fake-provider and live-provider evidence do not exist yet. PDF isolation/binary version and public-operation identity controls remain later decisions. No application secrets or document contents are logged by the scaffold. Review performed by the implementing agent is self-review, not independent reviewer approval.
