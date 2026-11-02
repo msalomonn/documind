@@ -38,3 +38,7 @@ DM-00 chooses identity integration, storage/parser libraries and provider contra
 ## DM-00 execution
 
 Implement T001/T002 against DM-B01–B06: contracts/ADR first, failing API readiness tests, then Go API/idle worker, private local services, migration tool, React status UI and CI. Real S3/database and browser checks must pass before reporting bootstrap ready. T003–T012 remain separate.
+
+## DM-01 execution
+
+See [private upload contract](contracts/private-upload.md) and [failure-boundary ADR](../../docs/adr/0003-private-upload.md). Implement T003–T005 with first-party sessions and the minimum text-upload UI. Full PDF content validation remains T008; reject PDF until then. Durable intents precede storage writes and transaction acquisition; object confirmation precedes document/job insertion. Exact origin checks, owner predicates and idempotency/failure tests are part of this delivery.
