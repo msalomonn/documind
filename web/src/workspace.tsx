@@ -17,16 +17,19 @@ export function Workspace({children}:{children:ReactNode}){
  const [docs,setDocs]=useState<Document[]>([]),[listReady,setListReady]=useState(false),[file,setFile]=useState<File|null>(null);
  const key=useRef(''),input=useRef<HTMLInputElement>(null);
  async function api(path:string,init?:RequestInit){
-  const response=await fetch(path,{...init,signal:AbortSignal.timeout(45000)});
+  const timeout=AbortSignal.timeout(45000);
+  const signal=init?.signal?AbortSignal.any([init.signal,timeout]):timeout;
+  const response=await fetch(path,{...init,signal});
   const data=await response.json();
+  signal.throwIfAborted();
   if(!response.ok){if(response.status===401&&path!=='/api/auth/login'){setUser(null);setDocs([]);setListReady(false);setFile(null);key.current='';setNotice('');setMode('login')};throw new Error(messages[data.error]??'Something went wrong. Check your local services and try again.');}
   return data;
  }
  useEffect(()=>{let active=true;void fetch('/api/me',{signal:AbortSignal.timeout(8000)}).then(async r=>{
   if(r.ok){const u=await r.json();if(active)setUser(u)}else if(r.status!==401)throw new Error();
  }).catch(()=>{if(active)setError('Cannot check your session. Check local services and try signing in.')}).finally(()=>{if(active)setChecking(false)});return()=>{active=false}},[]);
- useEffect(()=>{if(!user)return;let active=true;setListReady(false);
-  void api('/api/documents').then(data=>{if(active){setDocs(data.documents);setListReady(true)}}).catch(e=>{if(active)setError(e.message)});return()=>{active=false};
+ useEffect(()=>{if(!user)return;let active=true;const controller=new AbortController();setListReady(false);
+  void api('/api/documents',{signal:controller.signal}).then(data=>{if(active){setDocs(data.documents);setListReady(true)}}).catch(e=>{if(active)setError(e.message)});return()=>{active=false;controller.abort()};
  },[user]);
  async function signIn(event:FormEvent){event.preventDefault();setBusy(true);setError('');setNotice('');try{
   const u=await api('/api/auth/'+mode,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password})});setPassword('');setUser(u);

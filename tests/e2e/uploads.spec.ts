@@ -36,3 +36,23 @@ test('invalid input and lost acknowledgement recover without duplicate documents
  const retry=page.waitForRequest(r=>r.method()==='POST'&&r.url().endsWith('/api/documents'));await page.getByRole('button',{name:'Upload privately'}).click();expect((await retry).headers()['idempotency-key']).toBe(firstKey);
  await expect(page.getByRole('strong').filter({hasText:'recovery.txt'})).toHaveCount(1);await expect(page.getByRole('alert')).toHaveCount(0);await page.reload();await expect(page.getByRole('heading',{name:'Welcome back'})).toHaveCount(0);await expect(page.getByRole('strong').filter({hasText:'recovery.txt'})).toHaveCount(1);await expect(page.getByText('Queued',{exact:true})).toHaveCount(1);
 });
+
+test('leaving a session cancels its pending document request',async({page})=>{
+ const email=`cancel-${crypto.randomUUID()}@example.test`;
+ const response=await page.request.post('/api/auth/register',{headers:{Origin:'http://127.0.0.1:4320'},data:{email,password:'Synthetic-password-123'}});
+ expect(response.status()).toBe(201);
+ let release!:()=>void;const held=new Promise<void>(resolve=>{release=resolve});let first=true,started=false,cancelled=false;
+ page.on('requestfailed',request=>{if(request.url().endsWith('/api/documents'))cancelled=true});
+ await page.route('**/api/documents',async route=>{
+  if(!first){await route.continue();return}first=false;started=true;await held;
+  try{await route.fulfill({status:401,contentType:'application/json',body:'{"error":"authentication_required"}'})}catch{/* The old request is intentionally aborted. */}
+ });
+ try{
+  await page.goto('/');await expect(page.getByText('Signed in as')).toContainText(email);await expect.poll(()=>started).toBe(true);
+  await page.getByRole('button',{name:'Sign out',exact:true}).click();await expect(page.getByRole('heading',{name:'Welcome back'})).toBeVisible();
+  await expect.poll(()=>cancelled).toBe(true);
+  await page.getByLabel('Email',{exact:true}).fill(email);await page.getByLabel('Password',{exact:true}).fill('Synthetic-password-123');await page.getByRole('button',{name:'Sign in',exact:true}).click();
+  await expect(page.getByRole('heading',{name:'Your library is ready for its first document.'})).toBeVisible();release();
+  await page.getByRole('button',{name:'Refresh documents'}).click();await expect(page.getByText('Signed in as')).toContainText(email);
+ }finally{release()}
+});

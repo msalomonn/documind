@@ -2,7 +2,7 @@
 
 A document-processing application demonstrating durable jobs, worker recovery and schema-validated AI extraction.
 
-**Status:** DM-01 private text uploads implemented, pending PR integration on top of DM-00. Register/sign in, upload UTF-8 text, list and download your own originals. Each accepted upload has a durable queued job. Workers, PDF parsing and AI extraction are not implemented yet. No public deployment or paid provider is configured.
+**Status:** DM-01 private text uploads implemented on the DM-00 local foundation. Register/sign in, upload UTF-8 text, list and download your own originals. Each accepted upload has a durable queued job. Workers, PDF parsing and AI extraction are not implemented yet. No public deployment or paid provider is configured.
 
 ![Local workspace](docs/screenshots/upload-queued-desktop.png)
 
@@ -68,7 +68,7 @@ npx playwright install chromium
 npm run check
 ```
 
-Stop the local API and Vite processes first: browser tests own ports 4320/4321. Checks run TypeScript, production web/Go builds, Go tests with the race detector, real PostgreSQL/S3 integration, the worker dependency check and ten desktop/mobile browser scenarios. Integration tests use synthetic objects and remove their document/account fixtures. Browser scenarios create synthetic `@example.test` accounts and documents in the local database; they are intentionally not user data and are not a demo login. No real documents are needed. The health error test injects a 503 response. The lost-acknowledgement scenario commits a real upload, replaces its response with 503 and then retries the same key. These are response fault injections, not real network outages.
+Stop the local API and Vite processes first: browser tests own ports 4320/4321. Checks run TypeScript, production web/Go builds, Go tests with the race detector, real PostgreSQL/S3 integration, the worker dependency check and twelve desktop/mobile browser scenarios. Integration tests use synthetic objects and remove their document/account fixtures. Browser scenarios create synthetic `@example.test` accounts and documents in the local database; they are intentionally not user data and are not a demo login. No real documents are needed. The health error test injects a 503 response. The lost-acknowledgement scenario commits a real upload, replaces its response with 503 and then retries the same key. These are response fault injections, not real network outages.
 
 [Verification and limits](docs/verification.md) · [DM-01 checkpoint](docs/checkpoints/2026-10-31-private-upload.md) · [Bootstrap checkpoint](docs/checkpoints/2026-10-30-bootstrap.md)
 
