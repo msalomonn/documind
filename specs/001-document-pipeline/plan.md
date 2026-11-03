@@ -42,3 +42,9 @@ Implement T001/T002 against DM-B01–B06: contracts/ADR first, failing API readi
 ## DM-01 execution
 
 See [private upload contract](contracts/private-upload.md) and [failure-boundary ADR](../../docs/adr/0003-private-upload.md). Implement T003–T005 with first-party sessions and the minimum text-upload UI. Full PDF content validation remains T008; reject PDF until then. Durable intents precede storage writes and transaction acquisition; object confirmation precedes document/job insertion. Exact origin checks, owner predicates and idempotency/failure tests are part of this delivery.
+
+## DM-02 execution
+
+T006/T007 follow [W01–W07](contracts/workers.md) and [ADR DM-0004](../../docs/adr/0004-recoverable-workers.md). Add migration 003 without changing historical checksums. Claim under a short SKIP LOCKED transaction, commit before S3/processor work, and lock then recheck wall-clock ownership on each mutation. Persist result and final state atomically. Every claim, including crash recovery, consumes one of three attempts. A hard deadline bounds heartbeat extensions; reserve finalization time inside it.
+
+Keep the queue independent of extraction through a cancellation-aware Processor interface. Until T008 supplies an adapter, require an explicit synthetic document ID in the CLI, with a prefix-validated diagnostic outcome. General uploads remain queued. Surface real status, attempts and safe codes on manual refresh without closing T010. Validate with real PostgreSQL/S3, both SIGKILL and SIGTERM followed by restart, malformed outcome rejection, deferred COMMIT failure and desktop/mobile diagnostics. Provider failures are typed injections, not live provider requests.

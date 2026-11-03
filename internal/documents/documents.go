@@ -26,16 +26,18 @@ var ErrNotFound = errors.New("not_found")
 var ErrStorage = errors.New("storage_unavailable")
 
 type Document struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Size        int64     `json:"size"`
-	ContentType string    `json:"contentType"`
-	Status      string    `json:"status"`
-	Generation  int       `json:"generation"`
-	Attempts    int       `json:"attempts"`
-	CreatedAt   time.Time `json:"createdAt"`
-	ObjectKey   string    `json:"-"`
-	Hash        string    `json:"-"`
+	ID             string    `json:"id"`
+	Name           string    `json:"name"`
+	Size           int64     `json:"size"`
+	ContentType    string    `json:"contentType"`
+	Status         string    `json:"status"`
+	ErrorCode      string    `json:"errorCode,omitempty"`
+	ResultProvider string    `json:"resultProvider,omitempty"`
+	Generation     int       `json:"generation"`
+	Attempts       int       `json:"attempts"`
+	CreatedAt      time.Time `json:"createdAt"`
+	ObjectKey      string    `json:"-"`
+	Hash           string    `json:"-"`
 }
 type Objects interface {
 	Put(context.Context, string, []byte) error
@@ -123,12 +125,12 @@ func ValidKey(key string) bool {
 	return true
 }
 
-const columns = `d.id,d.name,d.size,d.content_type,j.state,j.generation,j.attempts,d.created_at,d.object_key,d.content_hash`
+const columns = `d.id,d.name,d.size,d.content_type,j.state,j.generation,j.attempts,d.created_at,d.object_key,d.content_hash,COALESCE(j.error_code,''),COALESCE((SELECT provider FROM documind.results r WHERE r.document_id=d.id AND r.generation=j.generation),'')`
 const join = ` FROM documind.documents d JOIN LATERAL (SELECT * FROM documind.jobs WHERE document_id=d.id ORDER BY generation DESC LIMIT 1) j ON true `
 
 func scan(row pgx.Row) (Document, error) {
 	var d Document
-	e := row.Scan(&d.ID, &d.Name, &d.Size, &d.ContentType, &d.Status, &d.Generation, &d.Attempts, &d.CreatedAt, &d.ObjectKey, &d.Hash)
+	e := row.Scan(&d.ID, &d.Name, &d.Size, &d.ContentType, &d.Status, &d.Generation, &d.Attempts, &d.CreatedAt, &d.ObjectKey, &d.Hash, &d.ErrorCode, &d.ResultProvider)
 	return d, e
 }
 func (s *Service) Register(ctx context.Context, owner, key, name string, b []byte) (Document, error) {

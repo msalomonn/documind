@@ -139,7 +139,11 @@ func NewApplication(a *auth.Service, d *documents.Service, origin string, health
 				}
 			case "retry":
 				if r.Method == "POST" {
-					fail(w, 409, "job_active")
+					if doc.Status == "failed" || doc.Status == "succeeded" {
+						fail(w, 409, "retry_not_enabled")
+					} else {
+						fail(w, 409, "job_active")
+					}
 					return
 				}
 			}

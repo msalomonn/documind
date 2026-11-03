@@ -47,7 +47,7 @@ func run() error {
 	server := &http.Server{Addr: c.Address, Handler: handler, ReadHeaderTimeout: 3 * time.Second, ReadTimeout: 35 * time.Second, WriteTimeout: 40 * time.Second, IdleTimeout: 30 * time.Second}
 	done := make(chan error, 1)
 	go func() { done <- server.ListenAndServe() }()
-	log.Print("DocuMind API started; document processing is not implemented")
+	log.Print("DocuMind API started; general extraction is not configured")
 	select {
 	case err = <-done:
 		if errors.Is(err, http.ErrServerClosed) {
