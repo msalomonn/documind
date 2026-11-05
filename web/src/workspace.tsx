@@ -1,7 +1,8 @@
 import {useEffect, useRef, useState, type FormEvent, type ReactNode} from 'react';
 import {Brand} from './brand';
 type User = {id:string;email:string};
-type Document = {id:string;name:string;size:number;status:string;createdAt:string};
+type Document = {id:string;name:string;size:number;status:string;attempts:number;errorCode?:string;resultProvider?:string;createdAt:string};
+const states:Record<string,string>={queued:'Queued',processing:'Processing',retry_wait:'Retry scheduled',failed:'Failed',succeeded:'Completed'};
 const messages:Record<string,string> = {
  authentication_required:'Your session has ended. Sign in again.', invalid_credentials:'Email or password is incorrect.',
  invalid_credentials_format:'Use a valid email and a password between 12 and 128 bytes.',account_unavailable:'An account with this email already exists. Try signing in.',
@@ -37,7 +38,7 @@ export function Workspace({children}:{children:ReactNode}){
  async function logout(){setBusy(true);setError('');try{await api('/api/auth/logout',{method:'POST'});setUser(null);setDocs([]);setListReady(false);setFile(null);key.current='';setNotice('');setMode('login')}catch(e){setError((e as Error).message)}finally{setBusy(false)}}
  async function upload(event:FormEvent){event.preventDefault();if(!file)return;setBusy(true);setError('');setNotice('');
   try{const form=new FormData();form.append('file',file);const d=await api('/api/documents',{method:'POST',headers:{'Idempotency-Key':key.current},body:form});
-   setDocs(previous=>[d,...previous.filter(item=>item.id!==d.id)].slice(0,100));setListReady(true);setNotice(`${d.name} was saved privately and queued. Processing is not enabled yet.`);setFile(null);key.current='';if(input.current)input.current.value='';
+   setDocs(previous=>[d,...previous.filter(item=>item.id!==d.id)].slice(0,100));setListReady(true);setNotice(`${d.name} was saved privately and queued.`);setFile(null);key.current='';if(input.current)input.current.value='';
   }catch(e){setError(e instanceof Error?e.message:'Could not confirm the upload. Retry with the same file.')}finally{setBusy(false)}
  }
  async function refresh(){setBusy(true);setError('');try{const d=await api('/api/documents');setDocs(d.documents);setListReady(true)}catch(e){setError((e as Error).message)}finally{setBusy(false)}}
@@ -63,8 +64,8 @@ export function Workspace({children}:{children:ReactNode}){
    {error&&<p className="error" role="alert">{error}</p>}{notice&&<p className="success" role="status">{notice}</p>}
    <form className="upload-card" onSubmit={upload}><div className="upload-copy"><span className="upload-symbol" aria-hidden="true">↑</span><h3>Bring your first insight.</h3><p>Choose a UTF-8 text document. Only you can access the original.</p><p className="hint">.txt · Up to 10 MiB · 200,000 characters · PDF coming later</p></div><label className="file-label" htmlFor="document-file">Choose document</label><input ref={input} id="document-file" name="file" type="file" accept=".txt,text/plain" disabled={busy} onChange={e=>{setFile(e.target.files?.[0]??null);key.current=crypto.randomUUID();setError('');setNotice('')}}/><button className="primary" disabled={busy||!file} type="submit">{busy?'Please wait…':'Upload privately'}</button></form>
    <div className="list-heading"><h3>Recent documents <span className="count">{docs.length}</span></h3><button disabled={busy} onClick={()=>void refresh()}>Refresh documents</button></div>
-   {docs.length===0?<div className="empty"><span aria-hidden="true">▤</span><h3>{listReady?'Your library is ready for its first document.':'Loading your library…'}</h3><p>{listReady?'Upload a text file to save a private original and register its processing job.':'Use Refresh documents if the connection fails.'}</p></div>:<ul className="document-list">{docs.map(d=><li key={d.id}><span className="document-icon" aria-hidden="true">▤</span><div className="document-name"><strong>{d.name}</strong><span>{d.size.toLocaleString()} bytes · {new Date(d.createdAt).toLocaleDateString()}</span></div><span className="badge queued">Queued</span><a className="download" href={`/api/documents/${d.id}/download`}>Download<span className="sr-only"> {d.name}</span></a></li>)}</ul>}
-   <p className="pipeline-note">Saved and queued. Automatic processing and AI extraction are coming in the next stage; no AI calls are made.</p>
+   {docs.length===0?<div className="empty"><span aria-hidden="true">▤</span><h3>{listReady?'Your library is ready for its first document.':'Loading your library…'}</h3><p>{listReady?'Upload a text file to save a private original and register its processing job.':'Use Refresh documents if the connection fails.'}</p></div>:<ul className="document-list">{docs.map(d=><li key={d.id}><span className="document-icon" aria-hidden="true">▤</span><div className="document-name"><strong>{d.name}</strong><span>{d.size.toLocaleString()} bytes · {new Date(d.createdAt).toLocaleDateString()}{d.attempts>0?` · Attempt ${d.attempts}/3`:""}</span>{d.errorCode&&<span className="job-error">{d.errorCode.replaceAll('_',' ')}</span>}</div><span className={'badge status-'+d.status}>{d.status==='succeeded'&&d.resultProvider==='diagnostic'?'Diagnostic complete':states[d.status]??'Unknown status'}</span><a className="download" href={`/api/documents/${d.id}/download`}>Download<span className="sr-only"> {d.name}</span></a></li>)}</ul>}
+   <p className="pipeline-note">Files are saved privately. Refresh to see the latest status. Diagnostic runs test processing reliability; document extraction and AI insights are not enabled yet.</p>
 
   </section>{children}<footer><span>Built for understanding. Designed for trust.</span><span>Private originals · No AI calls</span></footer></main>
  </div>;

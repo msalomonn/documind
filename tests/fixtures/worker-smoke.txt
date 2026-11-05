@@ -1,0 +1,3 @@
+DOCUMIND WORKER SMOKE
+Synthetic fixture for the recoverable-worker diagnostic.
+No customer data. No AI extraction.

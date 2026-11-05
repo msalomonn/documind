@@ -1,4 +1,30 @@
-# DM-01 verification
+# DM-02 verification
+
+Date: 2026-11-03, America/Argentina/Buenos_Aires. Source: the commit containing this record; the PR identifies the exact source head and CI run. Environment: macOS arm64, Go 1.27.3, Node 24.22.1, PostgreSQL 18, SeaweedFS 4.51 and Playwright 1.64.1 Chromium.
+
+`npm run check` and `go vet ./...` passed. The full check includes TypeScript, production web/Go builds, Go race tests, real PostgreSQL/S3 integration, the read-only worker dependency probe and **14 desktop/mobile browser scenarios**. No real documents or live AI requests were used.
+
+| Scope | Reproducible evidence |
+| --- | --- |
+| W01 / A04 claims | `tests/integration/workers_test.go`: eight competing consumers yield one claim; locked rows are skipped and future retries are ineligible. |
+| W02–W03 / A04 recovery | Real compiled worker child processes receive SIGKILL and SIGTERM, stop, wait for natural PostgreSQL lease expiry, restart and succeed on attempt 2. The previous token cannot complete. A third expired claim becomes terminal. |
+| W02–W03 / A06 fencing | Old-token renew/fail/complete are rejected; completion waiting behind a row lock is rejected after expiry; renewal is capped at the hard deadline. Slow processing stays owned through heartbeat; lost heartbeat cancels the processor without writing success. |
+| W03 / A06 atomic result | Duplicate completion leaves exactly one result. A real deferred PostgreSQL constraint trigger fails COMMIT: both succeeded state and result insertion roll back. Removing the fault permits completion. |
+| W04–W05 / A05 retry mechanics | Typed transient rate-limit failure, Retry-After cap, no early retry, three-attempt exhaustion, immediate permanent failure, sanitized unknown errors and processor timeout. `internal/jobs/policy_test.go` covers jitter bounds and structural outcome checks. These are injected typed failures, not live provider 429 responses. |
+| W05 / A06 structural subset | Runner rejects malformed outcomes. Version, required fields, sizes and provenance are checked before result persistence. Raw provider-payload and source-excerpt validation remain DM-03. |
+| W06–W07 / partial A08 | `tests/e2e/workers.spec.ts`: real synthetic upload → selected CLI worker → persisted diagnostic success, then permanent failure; manual refresh displays status, attempt and safe code on desktop/mobile. Existing authentication, privacy and upload scenarios still pass. |
+
+Some integration tests accelerate eligibility/expiry with targeted admin SQL updates. **The SIGKILL/SIGTERM subprocess scenarios wait for actual lease expiry without those updates.** All queue test claims are scoped to their own generated document IDs. Integration fixtures are cleaned up; browser fixtures remain synthetic `@example.test` accounts, as in DM-01.
+
+Visual evidence inspected: [success desktop](screenshots/worker-success-desktop.png), [success mobile](screenshots/worker-success-mobile.png), [failure desktop](screenshots/worker-failure-desktop.png), [failure mobile](screenshots/worker-failure-mobile.png). Screenshots show diagnostic processing, not AI output. Upload screenshots were refreshed for the current explanatory text. They demonstrate UI state; backend recovery is evidenced by integration tests.
+
+Limits: no general extraction adapter, PDF parsing, semantic quote validation, live provider, full result view, manual retry, automatic UI polling, public deployment, load/security certification or Go vulnerability scan. General uploads stay queued. Result retrieval remains a later endpoint implementation even though diagnostic results are persisted. A05 provider classification and A06 provider-output validation are not complete end-to-end until DM-03. A02, A07–A10 remain partially or wholly pending. Self-review is not independent reviewer approval. See the [checkpoint](checkpoints/2026-11-03-recoverable-workers.md) for integration boundaries.
+
+---
+
+## Historical DM-01 verification
+
+The following records earlier revisions; their limits do not describe the newer worker implementation above.
 
 Date: 2026-10-31, America/Argentina/Buenos_Aires. Source: the commit containing this record; PR records the exact tested head and CI result. Environment: macOS arm64, Go 1.27.3, Node 24.22.1, PostgreSQL 18, SeaweedFS 4.51, Playwright 1.64.1 Chromium.
 

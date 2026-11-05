@@ -22,10 +22,12 @@ T001/T002 are the DM-00 delivery, validated against [DM-B01–B06](contracts/boo
 - [x] T003 Define document/job/result schema, idempotency and active-generation constraints in db/migrations. Depends T002. [DM-A03,A06]
 - [x] T004 Implement owner-scoped bounded upload and storage-to-DB failure handling in internal/documents; expose registration and lookup routes. Depends T003. [DM-A01–A03]
 - [x] T005 Add real DB/storage upload tests in tests/integration for foreign owners, duplicate keys and storage/commit failures. Depends T004. [DM-A01–A03]
-- [ ] T006 Implement job claims, leases, retry scheduling and fenced completion in internal/jobs and cmd/worker. Depends T003. [DM-A04–A06]
-- [ ] T007 Add concurrent-claim, worker-kill, lease-expiry and stale-result tests in tests/integration. Depends T006. [DM-A04–A06]
+- [x] T006 Implement job claims, leases, retry scheduling and fenced completion in internal/jobs and cmd/worker. Depends T003. [DM-A04–A06]
+- [x] T007 Add concurrent-claim, worker-kill, lease-expiry and stale-result tests in tests/integration. Depends T006. [DM-A04–A06]
 - [ ] T008 Implement bounded PDF/text parsing and deterministic fake extractor in internal/extraction with invalid/malicious fixture tests. Depends T001,T006. [DM-A02,A06,A07,A09,A10]
 - [ ] T009 Implement live provider adapter with schema/quote validation, deadlines and typed failures after provider decision in internal/extraction. Depends T008. [DM-A05–A07,A09,A10]
 - [ ] T010 Build upload/progress/result/retry UI in web/src using agreed fixtures; add browser E2E against local fake provider. Depends T004 and response contract; integrate with T006,T008 before completion. [DM-A01,A08,A09]
 - [ ] T011 Add CI, dependency checks and acceptance mapping under .github/workflows and docs/verification.md. Depends T005,T007–T010. [DM-05]
 - [ ] T012 Add retention cleanup, quotas, deployed smoke and synthetic live-provider demo evidence after cost/hosting decisions. Document in docs/demo.md and release checklist. Depends T011. [DM-A09,A10; DM-05]
+
+T006/T007 implementation and local verification are recorded in the [DM-02 checkpoint](../../docs/checkpoints/2026-11-03-recoverable-workers.md). Integration status remains on issue #3 and its PR. A06 provider-payload/semantic validation remains T008/T009; marking queue tasks complete does not close the entire MVP acceptance set.
